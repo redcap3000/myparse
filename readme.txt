@@ -2,7 +2,7 @@
  
  
   @author		Ronaldo Barbachano http://www.redcapmedia.com
-  @copyright  (c) April 2011
+  @copyright  (c) June 2011
   @license		http://www.fsf.org/licensing/licenses/agpl-3.0.html
   @link		http://www.myparse.org
 
