@@ -31,11 +31,6 @@ class sqlee extends myparse_layout{
 	function __construct($system_folder){
 		parent::__construct($system_folder);
 		if($_POST['restart'] || $_POST['delete'] == 'Cancel') die(parent::reload_form());		
-		// examine post for date variables! check each passed post by exploding on '-' (this will be fine for sqlee but not for sqwizard)
-		// loads sqlee_conf::$_['upload_path']
-		// idedally config files should be loaded from the block option
-		// dynamically select the class name ??
-		// '/system/conf/' could be a config::$_['conf_path'] = '/system/conf/'
 		$class = get_class($this);
 		$class_conf_path = $system_folder.'/system/conf/'. $class . '_conf';
 	
@@ -44,8 +39,6 @@ class sqlee extends myparse_layout{
 		if($_FILES){
 			foreach($_FILES as $field_name=>$file){		
 			// look for a file field
-			// designate 'upload' folder somehow in a config (but never in the post object!!)
-			// generate stamp to prevent the same file name problem ..
 			$path = $system_folder . sqlee_conf::$_['upload_path'] (sqlee_conf::$_['upload_timestamp'] == true?(date('B') + 0).'_':'') . $file['name'];
 			// do validations and checks ..
 			// next add a post variable for the post handler to store if it doesnt exist try to create it
@@ -54,8 +47,6 @@ class sqlee extends myparse_layout{
 				else  
 					$_POST[$field_name] = (date('B') + date('s')).'_' .$file['name'];
 			}
-			// make directory if possible and chmod it
-			 // swatch internet time plus the seconds, should prevent duplicate filenames
 		}
 		if($_POST) $_POST = self::postHandler();
 	}
@@ -71,14 +62,11 @@ class sqlee extends myparse_layout{
 				// this occurs when a person posts a handler
 					$count = count($_POST);
 					// this is a silly way to update the fields .. we should just find a better way to compare rather than figure out why we have an extra comma..
-					
 					if($count > 1 && !$_POST['delete_confirm']){
 					// count is greater than 1 when we are doing an insert or update, the delete /delete_confirm actions do not send anything except the handler
 						// remove one from count to account for unsetting the handler .. this is temporary removing for the extra handler and handler_ser
 						// this could be more secure through the use of some string comparison functions
 						// prevent fields that do not exist in the edit fields from bein inserted by someone attempting to manipulate the sql strings ?
-						// validate insertion fields??? DO 'empty' COMPARISONS here .. don't update post's that are identical to the edits ?
-						// run and report update satement
 						$validation = self::validateInsertFields(1);
 						if(!is_array($validation)){
 							foreach($_POST as $key=>$value){
@@ -138,14 +126,8 @@ class sqlee extends myparse_layout{
 					$insert = self::band_aid("insert into `$this->table`(".implode(',', array_keys($p_copy)).") VALUES ('".implode("','",$p_copy)."');",2);	
 					// is this reloading ?
 					// instead of this we could attempt to load the value by modifying the handler post var ? or is it too late ??
-					if($insert && $_POST['handler']=='insert::')	{
-					//	$_POST['handler'] = "edit::$insert";
-						// newwp didn't work piece of shit
-						
-					// also over ride the argArg too?
-					self::reload_form();
-					
-					}
+					if($insert && $_POST['handler']=='insert::')	
+						self::reload_form();
 					// is insert the value of the newly updated record ?
 					// next we should get the value of the insert statement and regenerate a handler ?					
 					$result.= ($insert?'<h4 class="status">Insert successful!</h4>':'<h4 class="status">Problems with insert</h4>');
@@ -411,17 +393,8 @@ class sqlee extends myparse_layout{
 	
 	private function genf_input($template,$edit,$std_name,$type='text',$extra=NULL)
 	{
-	// make settings for 'time' in a sqlee.conf inside of system/conf
-	// also make a selector list simlar to libraries that generates the folders but for /conf to edit those vars
-	// so make a block option called edit_config::config name (no spaces) make a genfinput to handle it instead of putting it in blocks
-	// move pagination out of blocks into own object that sends/returns the used block fields by using array_key_intersect
-	
-	// clean up edit vars so we don't have to see any double apostrphies make sanitization function
 		switch ($type){ 
-		// sometimes post vars are already enclosed in quotes!
-		// validations are going to the default.. need to change a 'validation' entry to something better.... aghhh but how??? 
-				default:	return "\t". '<input type="text" name="'.$std_name. '" value="'. stripslashes(self::iffy($edit,$_POST,$std_name)).'"' .  ($extra!=NULL && !is_array($extra)?$extra:'').'>'			; 		break;
-				
+				default:	return "\t". '<input type="text" name="'.$std_name. '" value="'. stripslashes(self::iffy($edit,$_POST,$std_name)).'"' .  ($extra!=NULL && !is_array($extra)?$extra:'').'>'			; 		break;			
 				case 'selection_menu':
 				// to do ... create form wizard editor to make these lists or come up with easier to write seperators ...
 					foreach(explode('[!]',$extra[0]) as $a=>$b){
@@ -449,7 +422,6 @@ class sqlee extends myparse_layout{
 					$file_value = self::iffy($edit,$_POST,$std_name,'');
 					return ($file_value != ''?'<label class="existing_file"><small>File uploaded:<b>' . $file_value .'</b></small></label><br><small>Upload another file</small>':''). "<input type='file' name='$std_name'>";
 				break;
-				
 				case ($type=='timestamp' || $type=='date' || $type =='datetime'):
 				// this is pointless for fields with auto update ...
 						// will return the time - need to fix the time when updating (it disappears)
