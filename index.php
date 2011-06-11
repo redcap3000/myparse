@@ -1,17 +1,13 @@
 <?php
 /**
- * myparse version 1.7 (PHP)
+ * myparse version 2 (PHP)
  * @author		Ronaldo Barbachano http://www.redcapmedia.com
- * @copyright  (c) April 2011
+ * @copyright  (c) June 2011
  * @license		http://www.fsf.org/licensing/licenses/agpl-3.0.html
  * @link		http://www.myparse.org
  */
 // turn off error_reporting for live sites
 //error_reporting(0);
-
-
-// fix login 'too many connections' error ... yikes
-
 	define('IN_MYPARSE', true);
 if (function_exists('realpath') AND @realpath(dirname(__FILE__)) !== FALSE)	$system_folder = realpath(dirname(__FILE__));
 // until we turn these config files into objects this is the easiest most effective way to load this stuff is to keep these globals
@@ -20,40 +16,10 @@ if (function_exists('realpath') AND @realpath(dirname(__FILE__)) !== FALSE)	$sys
 		die(require_once($system_folder."/system/bs/installer.php"));
 	else require_once($system_folder."/system/conf/config.php");
 
-
-	// $url is where the user can input data.. validate the $_GET["p"] entry before running it...
-	
-	
 	new myparse_page();
-	
-	//echo $page->stats();
-	
-	class myparse_page{
-// shouldn't this be at index ?
-// makes the head ... after the myparse layout is created .. can't inherit wish it could
-// make everything static somehow ?
-	
-	
-	
-	//public $url,$pass_url,$url_count,$start_time,$oh_memory,$query_count;
 
-	
-	
+class myparse_page{
 	public static $admin_config = array('admin'=>'conf/admin','admin_sqwizard'=>'libraries/sqwizard.php','admin_sqleer'=>'libraries/sqleer.php','admin_users'=>'','admin_blocks'=>'','admin_sqleete'=>'');
-	
-	
-
-	public function stats($x=null){
-	global $num_queries;
-		return ($x!=NULL ?($x=='memory'?round(memory_get_usage() / 1024):
-				($x=='memory_peak'? round(memory_get_peak_usage() / 1024):
-					 ($x=='load_time'?sprintf("%.4f", (((float) array_sum(explode(' ',microtime())))-$this->start_time)):
-					 	($x=='oh_memory'? $this->oh_memory:NULL)))):"\n<div class='stats'>Query Count: $num_queries\n<br/>Overhead Memory use:\t$this->oh_memory k<br/>Memory use:\t". round(memory_get_usage() / 1024) ." k  <br/>Peak use:\t" .round(memory_get_peak_usage() / 1024). " k <br/>Net memory:\t".(round(memory_get_usage() / 1024) - $this->oh_memory) ." k \n</br>Load Time:\t" . sprintf("%.4f", (((float) array_sum(explode(' ',microtime())))-$this->start_time))." seconds</div> \n");
-	}
-	
-	
-	
-	
 	function __construct(){
 		global $system_folder;
 		$this->system_folder = $system_folder;
@@ -73,7 +39,6 @@ if (function_exists('realpath') AND @realpath(dirname(__FILE__)) !== FALSE)	$sys
 
 		$this->url = (isset($_GET["p"]) ? str_replace("|", "/", $_GET["p"]):NULL);
 		if($this->url != NULL){
-			
 			// validate 'passed' url... attempt to remove common SQL injection techniques
 			// also apply a salt to encode the url, so if a user attemptes to manually enter
 			// unrecognized values then it won't work ... 
@@ -83,22 +48,18 @@ if (function_exists('realpath') AND @realpath(dirname(__FILE__)) !== FALSE)	$sys
 					$this->url=NULL;
 					//exit;
 				}else{
-						
 					$this->pass_url = $this->url;
 					$this->url = explode("/", $this->url);
 					$this->url_count = count($this->url);
-			
 					}
 		}else{
 			$this->url[0] = 'homepage';
 			$this->pass_url = 'homepage';
 		}
-		
 	
 	// this object in the construct method creates an infinite loop, must distinguish a child construct method call to avoid a 'nothing' output 
 	// this could be placed outside the object after myparse page has excuted (and if it returns nothing, i.e. is not a cached file) then this code may execute
 	// well their wont be a layout in this so does this always run ?
-	
 	// do caching from the env class
 
 		if(get_class($this) == 'myparse_page'){
@@ -113,10 +74,9 @@ if (function_exists('realpath') AND @realpath(dirname(__FILE__)) !== FALSE)	$sys
 			// if the layout has full_output data, exit the script with that data.
 			if($layout->full_output) die($layout->full_output);
 			// begin building the layout object, starting with the head
-		
 			if(config::$_['stats']==true) $layout->html_output .= self::stats();
 			// no cache is an option that will not let a url be cached .. no_cache:true in the 'block_options' will do it..
-		//	$head .= ($this->page_title ? $this->page_title . "</title>\n" :"default</title>\n" ) .($layout->html_head?$layout->html_head:'') ;	
+			//	$head .= ($this->page_title ? $this->page_title . "</title>\n" :"default</title>\n" ) .($layout->html_head?$layout->html_head:'') ;	
 			// not sure how this affects things ... but this library is to cache the page, probably move that code in here to keep track of it better its only a few lines anyway
 			if($layout->html_output && !$layout->no_cache && config::$_['cache']) {
 			// put file should be on index .. but perhaps we should create another class there to support the URL 
@@ -139,18 +99,8 @@ if (function_exists('realpath') AND @realpath(dirname(__FILE__)) !== FALSE)	$sys
 				// write html_output to screen
 				($layout->html_head? $layout->html_head : '') ."	\n\t</head>\n\t<body>\n" . flush() . $layout->html_output . flush();
 				}
-		
-			
-	
 		}
-		
-		
 	// user registration callout
 			if($_POST['registration'])require("$system_folder/system/bs/registration.php");
-
 	}
 }	
-	
-	
-	// optional stats reporting here & HTML body close tags
-	// maybe turn this into a plugin or /require require(mp_load_stats)
