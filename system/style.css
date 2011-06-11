@@ -1,0 +1,219 @@
+/* @override http://www.ipaytel.com/main.css */
+
+body{
+background-color:lightgray;
+
+font-family:'Arial';
+font-size:12px;
+line-height:14px;
+}
+
+form{
+background-color:white;
+ margin: 0px 180px;
+padding-top:50px;
+width : 800px;
+min-height:400px;
+padding-bottom:120px;
+border-left:solid lightgray 8px;
+border-bottom:none;
+}
+
+fieldset{
+border:none;
+border-bottom: solid lightgray 4px;
+}
+legend{
+background-color:lightgray; width:100px;
+padding: 10px 15px;float:left; border:none;
+margin:10px;
+font-size:18px;
+}
+
+.field_info{
+width:100px;
+padding:10px;
+float:left;
+clear:both;
+}
+
+#form_buttons{
+float:left;
+width:790px;
+border:none;
+border-top:solid lightgray 10px;
+position:fixed;
+bottom:0px;
+margin-left:-1px;
+height:120px;
+clear:both;
+background-color:lightgray;
+
+
+}
+
+#admin_menu{
+position:fixed;
+float:left;
+
+clear:both;
+top:50px;
+
+}
+
+#admin_menu a{
+width:180px;float:left;
+line-height:40px;
+font-size:24px;
+font-style:none;
+height:40px;
+margin:20px 0;
+padding:10px 5px;
+background-color:white;
+clear:both;
+color:black;
+
+}
+
+h1{
+margin-left:190px;
+}
+.s_button{
+border:solid black 2px;
+padding:5px;
+font-size:14px; margin:10px; width:90px;
+margin-top:5px;
+float:right;
+}
+
+.s_button:hover{
+color:white;
+background-color:black;
+}
+
+.stats{
+clear:both;
+float:left;
+display:none;
+}
+
+#block_name,#block_type,#block_order,#status,#bo_permissions{
+position:fixed;
+float:left;
+margin-left:-220px;
+z-index:100;
+width:160px;
+height:auto;
+font-size:15px;
+padding:20px;
+border-top:none;
+border-bottom:none;
+
+}
+
+#bo_permissions{
+margin-top:-450px;
+
+}
+#block_name input{
+margin-top:-20px;
+margin-left:25px;
+}
+
+#block_order{
+
+margin-top:-30px; 
+}
+
+#block_order input{
+float:left;
+margin-top:-50px;
+margin-left:145px;
+width:40px;
+}
+
+#block_name{
+
+}
+
+#block_name input{
+
+position:fixed;
+width:160px;
+z-index:101;
+}
+
+#block_type{
+
+margin-top:15px;
+
+}
+
+#block_type .field_info{
+display:none;
+
+}
+
+
+
+
+#block_type select{
+float:left;
+margin-top:-50px;
+margin-left:100px;
+}
+
+
+#status{
+float:left;
+margin-top:-515px;
+
+}
+
+#status select{
+
+float:left;
+margin-top:-50px;
+margin-left:135px;
+}
+
+
+
+
+#status .field_info{
+display:none;
+}
+
+#block_options{
+border-top:solid lightgray 8px;
+
+
+}
+
+#block_options fieldset{
+border:none;
+width:21%;
+float:left;
+}
+
+#block_options legend{
+
+}
+
+#block_options .record_select{
+ width:10%;
+}
+
+#block_options .textarea{
+margin-left:20px;
+clear:right;
+width:330px;}
+
+#block_name legend{
+
+}
+
+table.sqlee_wizard {
+	margin-left: 210px;
+	margin-top: 70px;
+}
