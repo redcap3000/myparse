@@ -66,11 +66,13 @@ class myparse_page{
 		// do nothing if its a child constructor this should be more elegant i assume... the construct method is a bad place to put this code
 			require_once($system_folder.'/system/blocks.php');
 			$layout = new myparse_layout();	
-			//print_r($layout);
+			
 			// do not like meta_head .. it probably needs another variable that disappears because of the $myparse call that creates an object inside the function call
 			if($layout->keywords || $layout->description) require("$system_folder/system/bs/meta_head.php");
 			// renders html page for caching, 'full output' (displays a single block as a url), or block by block display
+			
 			if(!$layout->html_output) die('<h1>Error 404 Page not found.</h1>.');
+			
 			// if the layout has full_output data, exit the script with that data.
 			if($layout->full_output) die($layout->full_output);
 			// begin building the layout object, starting with the head

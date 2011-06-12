@@ -1,4 +1,5 @@
 <?php
+
 echo '
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -77,9 +78,7 @@ if (!isset($_POST['db_host']) or !isset($_POST['db_name']) or !isset($_POST['db_
 	if (!mysqli_real_connect($mysqli_link, $_POST['db_host'], $_POST['db_user'], $_POST['db_pass'],$_POST['db_name'])) die('<h3>Invalid MySQL database settings. Please check.</h3>');
 	// test db vars to see that they work!
 	if(mysqli_query($mysqli_link,"SELECT id from mp_blocks LIMIT 1") == 1 || mysqli_query($mysqli_link,"SELECT id from mp_templates LIMIT 1"))
-	// modify this later to take the table prefixs/ and blocks_table /template_table to do allow users to easily install installations ontop of each other with the same tables
 	die('<h1>Myparse is already installed</h1><h4>Please remove tables "mp_blocks" and/or "mp_templates" from ' . $_POST['db_name'] . ' and run this installer again.</h4>');
-	
 	if($_POST['pass'] != $_POST['pass_confirm']) die("<h3>Admin account passwords do not match.</h3>");
 	else {
 	echo '<a href="admin">Loginto admin panel</a> with : username:'. $_POST['username'] . ' password : ' . $_POST['pass'];
@@ -116,21 +115,13 @@ CREATE TABLE IF NOT EXISTS `mp_templates` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
-INSERT INTO `mp_blocks` (`block_name`, `block_template`, `block_type`, `block_order`, `urls`, `master_select`, `block_content`, `page_title`, `block_options`, `status`) VALUES
-('logout', 'logout', NULL, NULL, 'logout', NULL, NULL, NULL, NULL, '1'),
-('admin', NULL, NULL, 5, 'admin', NULL, NULL, NULL, 'permissions:SystemGOD', '1'),
-('admin_blocks', NULL, NULL, NULL, 'admin_blocks', NULL, NULL, NULL, 'permissions:SystemGOD', '1'),
-('admin_users', NULL, NULL, NULL, 'admin_users', NULL, NULL, NULL, 'permissions:SystemGOD', '1');
-
-
+INSERT INTO `mp_blocks` VALUES (1,'logout','logout',NULL,NULL,'logout',NULL,NULL,NULL,NULL,'1'),(2,'admin','','',5,'admin','','','','permissions:SystemGOD::edit_conf:config','1'),(3,'admin_menu','','',4,'admin,admin_sqwizard,admin_blocks,admin_sqleete,admin_users,admin_groups','','<ul id=\\\"admin_menu\\\"><li><h4>Myparse</h4></li>\r\n<li><a href=\\\"admin\\\">Server Conf</a></li>\r\n<li><a href=\\\"admin_blocks\\\">Blocks</a></li>\r\n<li><a href=\\\"admin_users\\\">Users</a></li>\r\n<li><a href=\\\"admin_groups\\\">Groups</a></li>\r\n<li><a href=\\\"admin_sqwizard\\\">Form Wizard</a></li></ul>','','permissions:SystemGOD::unauthorized_msg:<form method=\\\"post\\\">\r\n				<fieldset>\r\n				<legend>Please login 1</legend>\r\n				<label>Username</label>\r\n				    <input type=\\\"text\\\" name=\\\"user_login\\\">\r\n				<label>Password</label>\r\n				    <input type=\\\"password\\\" name=\\\"password\\\" >\r\n				</fieldset>\r\n				\r\n				<input type=\\\"submit\\\" name=\\\"submit\\\" value=\\\"Login\\\">\r\n				</form>','1'),(4,'admin_blocks','','',5,'admin_blocks','','','','permissions:SystemGOD::form_edit_config:id&&+~block_name&&required+~block_template&&record_select[]mp_templates||id||block_template||0+~block_type&&+~block_order&&validation[]block_order+~urls&&required+~master_select&&+~block_content&&+~page_title&&+~block_options&&+~status&&required::form_record_config:mp_blocks&&id--id--block_name--block_type--urls--status::form_mode:3 ','1'),(5,'admin_groups','','',5,'admin_groups','','','','permissions:SystemGOD::form_edit_config:id&&+~name&&required--unique--validation[]name+~group_permissions&&+~group_level&&required--validation[]group_level::form_record_config:mp_groups&&id--id--name--group_permissions--group_level::form_mode:3','1'),(6,'admin_sqwizard','','',5,'admin_sqwizard','','','','load_class:sqwizard::permissions:SystemGOD','1'),(7,'header',NULL,'raw_html',0,'*',NULL,'<div id =\"page\">\r\n <div id =\"header\">\r\n  <h1>myparse</h1>\r\n </div>\r\n <div id =\"content\">\r\n\r\n','myparse','','1'),(8,'homepage',NULL,'raw_html',1,'homepage','','<h1>Welcome to myparse!</h1>\r\n\r\n<p>Please edit these records and replace with your site!</p>\r\n\r\n<p>A basic div structure is present for you here to modify, throw away, or use.</p>',NULL,NULL,'1'),(9,'footer',NULL,'raw_html',9,'*',NULL,' </div>\r\n <div id=\"footer\">\r\n  <b>2010</b>\r\n </div>\r\n</div>','','','1'),(10,'admin_users','','',0,'admin_users','','','','permissions:SystemGOD::form_edit_config:userid&&list+~username&&required--unique+~full_name&&required+~usergroup&&record_select[]mp_groups||id||name||0||Select usergroup--required+~email&&required--validation[]email+~last_ip&&+~logins_number&&+~randkey&&+~is_active&&::form_record_config:mp_users&&userid--userid--username--full_name--email--is_active::form_mode:3','1');
 
 INSERT INTO `mp_templates` (`block_template`, `block_type`, `page_title`, `master_select`, `block_options`, `block_content`) VALUES
 ('login', 'raw_html', NULL, NULL, 'permissions:hide', '\r\n<form method=\"post\">\r\n<fieldset>\r\n<legend>Please login</legend>\r\n<label>Username</label>\r\n    <input type=\"text\" name=\"user_login\">\r\n<label>Password</label>\r\n    <input type=\"password\" name=\"password\" >\r\n</fieldset>\r\n\r\n<input type=\"submit\">\r\n</form>'),
-('logout', NULL, NULL, NULL, 'logout:true::redirect:[root]::no_cache:true', NULL),
-('user_registration','','Register','','','<form method=\"post\" id=\"registration\">\r\n<legend>User Registration</legend>\r\n\r\n<fieldset><label>Username</label><input type=\"text\" name=\"username\" />\r\n	<label>Password*</label><input\r\n	type=\"password\" name=\"pass\"/>\r\n	<label>Password Confirm*</label><input\r\n	type=\"password\" name=\"pass_confirm\"/></fieldset>\r\n	<fieldset><label>Email</label><input\r\n	type=\"text\" name=\"email\"/>\r\n	<label>Fullname</label><input\r\n	type=\"text\" name=\"fullname\"/>\r\n	</fieldset>\r\n<input type=\"submit\" name=\"registration\" value=\"Register\">\r\n</form> ');
-";
-
-$permissions_system = "CREATE TABLE IF NOT EXISTS `mp_sessions` (
+('logout', NULL, NULL, NULL, 'logout:true::redirect:[root]::no_cache:true', NULL);
+	
+CREATE TABLE IF NOT EXISTS `mp_sessions` (
   `session_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `user_name` varchar(255) NOT NULL,
@@ -142,12 +133,6 @@ $permissions_system = "CREATE TABLE IF NOT EXISTS `mp_sessions` (
   `last_ip` varchar(100) NOT NULL,
   PRIMARY KEY (`session_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `mp_users`
---
 
 CREATE TABLE IF NOT EXISTS `mp_users` (
   `userid` int(9) unsigned NOT NULL AUTO_INCREMENT,
@@ -175,43 +160,20 @@ CREATE TABLE IF NOT EXISTS `mp_groups` (
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
 
-";
-
-$aiki_default_groups = "INSERT INTO `mp_groups` (`id`, `name`, `group_permissions`, `group_level`) VALUES
+INSERT INTO `mp_groups` (`id`, `name`, `group_permissions`, `group_level`) VALUES
 (1, 'System Administrators', 'SystemGOD', 1),
 (2, 'Modules Administrators', 'ModulesGOD', 2),
 (3, 'Guests', 'ViewPublished', 100),
 (4, 'Banned users', 'ViewPublished', 101),
 (5, 'Normal User', 'normal', 4),
-(6, 'employees', 'employees', 3);";
-
-	
-
-
-// removing ikipress from initial install .. this is just too complicated to keep track of anymore .. will create a custom installer/plug interface for all plugins to use
-// to make installation easier and more understandable.
-	
-	
-$basic_blocks = "INSERT INTO `mp_blocks` 
+(6, 'employees', 'employees', 3);INSERT INTO `mp_blocks` 
 (`block_name`, `block_type`, `block_order`, `urls`, `master_select`, `block_content`, `page_title`, `block_options`, `status`) VALUES
-( 'admin_menu', '', '', 4, 'admin,admin_sqwizard,admin_blocks,admin_sqleete,admin_users,admin_groups', '', '<div id=\"admin_menu\"><h4>Myparse</h4><a href=\"admin\">Configuration</a><a href=\"admin_blocks\">Blocks</a><a href=\"admin_users\">Users</a><a href=\"admin_groups\">Groups</a><a href=\"admin_sqwizard\">Form Wizard</a></div>', '', 'permissions:SystemGOD::unauthorized_msg:<form method=\"post\">\r\n				<fieldset>\r\n				<legend>Please login 1</legend>\r\n				<label>Username</label>\r\n				    <input type=\"text\" name=\"user_login\">\r\n				<label>Password</label>\r\n				    <input type=\"password\" name=\"password\" >\r\n				</fieldset>\r\n				\r\n				<input type=\"submit\" name=\"submit\" value=\"Login\">\r\n				</form>::', '1'),
-('admin', '', '', 5, 'admin', '', '', '', 'permissions:SystemGOD::', '1'),
-('admin_blocks', '', '', 5, 'admin_blocks', '', '', '', 'permissions:SystemGOD::form_edit_config:id&&+~block_name&&required+~block_template&&record_select[]mp_templates||id||block_template||0+~block_type&&+~block_order&&validation[]block_order+~urls&&required+~master_select&&+~block_content&&+~page_title&&+~block_options&&+~status&&required::form_record_config:mp_blocks&&id--id--block_name--block_type--urls--status::form_mode:3 ', '1'),
-('admin_groups', '', '', 5, 'admin_groups', '', '', '', 'permissions:SystemGOD::form_edit_config:id&&+~name&&required--unique--validation[]name+~group_permissions&&+~group_level&&required--validation[]group_level::form_record_config:mp_groups&&id--id--name--group_permissions--group_level::form_mode:3', '1'),
-('admin_sqwizard', '', '', 5, 'admin_sqwizard', '', '', '', 'load_class:sqwizard::permissions:SystemGOD', '1');
 ('header', 'raw_html', 0, '*', NULL, '<div id =\"page\">\r\n <div id =\"header\">\r\n  <h1>myparse</h1>\r\n </div>\r\n <div id =\"content\">\r\n\r\n', 'myparse', '', 1),
 ('homepage', 'raw_html', 1, 'homepage', '', '<h1>Welcome to myparse!</h1>\r\n\r\n<p>Please edit these records and replace with your site!</p>\r\n\r\n<p>A basic div structure is present for you here to modify, throw away, or use.</p>', NULL, NULL, 1),
 ('footer', 'raw_html', 9, '*', NULL, ' </div>\r\n <div id=\"footer\">\r\n  <b>2010</b>\r\n </div>\r\n</div>', '', '', 1);
 ";
-$google_a = "
-
-INSERT INTO `mp_templates` (`block_template`, `block_type`, `page_title`, `master_select`, `block_options`, `block_content`) VALUES
-('google_a', 'html_head', '', '', '', '<script type=\"text/javascript\">\r\n  var _gaq = _gaq || [];\r\n  _gaq.push([''_setAccount'', ''[ga_id]'']);\r\n  _gaq.push([''_trackPageview'']);\r\n\r\n  (function() {\r\n    var ga = document.createElement(''script''); ga.type = ''text/javascript''; ga.async = true;\r\n    ga.src = (''https:'' == document.location.protocol ? ''https://ssl'' : ''http://www'') + ''.google-analytics.com/ga.js'';\r\n    var s = document.getElementsByTagName(''script'')[0]; s.parentNode.insertBefore(ga, s);\r\n  })();\r\n</script>\r\n');
-
-INSERT INTO `mp_blocks` (`block_name`, `block_template`, `block_type`, `block_order`, `urls`, `master_select`, `block_content`, `page_title`, `block_options`, `status`) VALUES
-	('google_a', 'google_a', '', 9, '*', NULL,NULL, NULL, NULL, 1); INSERT INTO `mp_templates` (`block_template`, `block_type`, `page_title`, `master_select`, `block_content`) VALUES
-('google_a', 'html_head', NULL, NULL, '<script type=\"text/javascript\">\r\n  var _gaq = _gaq || [];\r\n  _gaq.push([''_setAccount'', ''[ga_id]'']);\r\n  _gaq.push([''_trackPageview'']);\r\n\r\n  (function() {\r\n    var ga = document.createElement(''script''); ga.type = ''text/javascript''; ga.async = true;\r\n    ga.src = (''https:'' == document.location.protocol ? ''https://ssl'' : ''http://www'') + ''.google-analytics.com/ga.js'';\r\n    var s = document.getElementsByTagName(''script'')[0]; s.parentNode.insertBefore(ga, s);\r\n  })();\r\n</script>\r\n');
-";
+	
+	
 	
 $seo_meta = "INSERT INTO `mp_blocks` (`block_name`, `block_template`, `block_type`, `block_order`, `urls`, `master_select`, `block_content`, `page_title`, `block_options`, `status`) VALUES
 ('seo', 'seo_meta', '', 0, '*', NULL, NULL, NULL, NULL, 1);
@@ -221,21 +183,17 @@ INSERT INTO `mp_templates` (`block_template`, `block_type`, `page_title`, `maste
 
 ";
 	// you could just try and use the $_SERVER variable instead of the counting...
-	// also use the path of the page ?
 	
-	$pageURL = "http://".$_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
 	//$page_strlen =  strlen($pageURL);
 	
+	$pageURL = "http://".$_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
 	$page = explode('/',$pageURL);
 	$p_count = count($page);
 	$install_root = ($p_count > 1? '/' . $page[$p_count - 2] : '/');
+	
 // ideal make 'enviornments' enabled by default, and allow the definition of the first enviornment on install
 // allow for a 'switcher' of sorts to go between different env in an admin interface
-
-
-
-
-$config_file =
+	$config_file =
 '<?php
 	class config{ 
 		public static $_ = array(
@@ -244,7 +202,7 @@ $config_file =
 			\'db_user\'=>\''.$_POST['db_user'].'\',
 			\'db_pass\'=>\''.$_POST['db_pass'].'\',
 			\'db_host\'=>\''.$_POST['db_host'].'\',
-			\'url\'=>\'http://' . $_SERVER["SERVER_NAME"]. $install_root .''',
+			\'url\'=>\'http://' . $_SERVER["SERVER_NAME"]. $_SERVER["REQUEST_URI"] .'/\',
 			\'block_table\'=>\'mp_blocks\',
 			\'template_table\'=>\'mp_templates\',
 			\'table_prefix\'=>\'\',
@@ -255,9 +213,7 @@ $config_file =
 			\'compress_cache_output\'=>false,
 			\'debug\'=>false);
 				}';
-
-
-
+				
 
 	$htaccess_file = 
 '<IfModule mod_expires.c>
@@ -309,13 +265,14 @@ Header unset ETag
 FileETag None
 Options +FollowSymLinks
 RewriteEngine on
-RewriteBase '.$_SERVER["REQUEST_URI"].'
+RewriteBase '.$_SERVER["REQUEST_URI"].'/
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{SCRIPT_FILENAME} !-d
 RewriteCond %{SCRIPT_FILENAME} !-f
 RewriteRule ^(.*)$ index.php?p=$1 [L,QSA]';
 
+// use sqlee for this form.
 
 $admin_user = "INSERT INTO `mp_users` ( `username`, `full_name`, `password`, `usergroup`, `email`) VALUES ( '".$_POST['username']."', '".$_POST['fullname']."', '".md5($_POST['pass'])."', '1', '".$_POST['email']."');";
 // this is sht.	
@@ -326,13 +283,15 @@ if(($_POST['description'] != '' && $_POST['description'] != 'Your site descripti
 $myparse_install .= $basic_blocks;
 
 		
-if($_POST['ga_id']!='UA-11111111-1' && $_POST['ga_id']!='') $myparse_install .= $google_a;
-
+$myparse_install .= $google_a;
+	// leaving this in so I easily check the installation query for adding options
+	//echo '<textarea>' . $myparse_install.$permissions_system.$aiki_default_groups.$admin_user . '</textarea> ';
+	
 echo (mysqli_multi_query($mysqli_link,$myparse_install.$permissions_system.$aiki_default_groups.$admin_user)?
 	'<h1>Configuration setup successful </h1>
 		<h2>pending actions below:</h2>
 		<h3>Please create these files:</h3><p>By copying and pasting the text below into new documents on your server in the location indicated.</p><h4>"/system/conf/config.php"</h4>
-	<textarea>' . $config_file . '</textarea> ' . '<h4>"/.htaccess"</h4><i>(place in main/root directory of your myparse installation)</i><br/><textarea>' . $htaccess_file . '</textarea>
+	<textarea>' . $config_file . '</textarea> ' .'<h4>"/system/conf/user_vars.php"</h4><h4>"/.htaccess"</h4><i>(place in main/root directory of your myparse installation)</i><br/><textarea>' . $htaccess_file . '</textarea>
 	':'Problem with installation query.');
 
 }
