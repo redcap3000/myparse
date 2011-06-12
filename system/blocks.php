@@ -21,6 +21,11 @@ class myparse_layout extends myparse_page
 		global $system_folder;
 		parent::__construct($system_folder);
 		
+		if(!class_exists('user_vars'))
+			require($system_folder.'/system/conf/user_vars.php');
+		
+		
+		
 		if(!$this->db){
 			$this->db = mysqli_init();
 			if (!$this->db)     die('mysqli_init failed');
@@ -442,10 +447,8 @@ class myparse_layout extends myparse_page
 	return $query;
 	}
 	public function processVars($text){
-	// need to run this on master_selects
-	//global $user_vars;
 		// could be handled better much like the other var processor (with for loop)
-		//$text = self::parse_vars($text,$user_vars);
+		$text = self::parse_vars($text,user_vars::$_);
 		$text = self::membership_vars($text);
 		// url values may need to be subtracted if we are installing from a non-root directory ...
 		return str_replace(config::$_['url'].'/', config::$_['url'], str_replace('[root]', config::$_['url'], $text));
@@ -458,7 +461,7 @@ class myparse_layout extends myparse_page
 	// remove vars that do not exist.. but should
 	if(is_array($vars))
 		foreach($vars as $key=>$value)
-			if(strpos($text, '['.$key.']') !== false) $text = str_replace( '['.$key.']', $value, $text);
+			if(strpos($text, $key) !== false) $text = str_replace( $key, $value, $text);
 	return $text;
 	}
 	
