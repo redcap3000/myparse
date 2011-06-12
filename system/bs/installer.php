@@ -78,6 +78,7 @@ if (!isset($_POST['db_host']) or !isset($_POST['db_name']) or !isset($_POST['db_
 	if (!mysqli_real_connect($mysqli_link, $_POST['db_host'], $_POST['db_user'], $_POST['db_pass'],$_POST['db_name'])) die('<h3>Invalid MySQL database settings. Please check.</h3>');
 	// test db vars to see that they work!
 	if(mysqli_query($mysqli_link,"SELECT id from mp_blocks LIMIT 1") == 1 || mysqli_query($mysqli_link,"SELECT id from mp_templates LIMIT 1"))
+	// modify this later to take the table prefixs/ and blocks_table /template_table to do allow users to easily install installations ontop of each other with the same tables
 	die('<h1>Myparse is already installed</h1><h4>Please remove tables "mp_blocks" and/or "mp_templates" from ' . $_POST['db_name'] . ' and run this installer again.</h4>');
 	if($_POST['pass'] != $_POST['pass_confirm']) die("<h3>Admin account passwords do not match.</h3>");
 	else {
@@ -191,25 +192,21 @@ $aiki_default_groups = "INSERT INTO `mp_groups` (`id`, `name`, `group_permission
 // to make installation easier and more understandable.
 	
 	
-$basic_blocks = "
-
-
-
-
-INSERT INTO `mp_blocks` 
+$basic_blocks = "INSERT INTO `mp_blocks` 
 (`block_name`, `block_type`, `block_order`, `urls`, `master_select`, `block_content`, `page_title`, `block_options`, `status`) VALUES
+( 'admin_menu', '', '', 4, 'admin,admin_sqwizard,admin_blocks,admin_sqleete,admin_users,admin_groups', '', '<div id=\"admin_menu\"><h4>Myparse</h4><a href=\"admin\">Configuration</a><a href=\"admin_blocks\">Blocks</a><a href=\"admin_users\">Users</a><a href=\"admin_groups\">Groups</a><a href=\"admin_sqwizard\">Form Wizard</a></div>', '', 'permissions:SystemGOD::unauthorized_msg:<form method=\"post\">\r\n				<fieldset>\r\n				<legend>Please login 1</legend>\r\n				<label>Username</label>\r\n				    <input type=\"text\" name=\"user_login\">\r\n				<label>Password</label>\r\n				    <input type=\"password\" name=\"password\" >\r\n				</fieldset>\r\n				\r\n				<input type=\"submit\" name=\"submit\" value=\"Login\">\r\n				</form>::', '1'),
+('admin', '', '', 5, 'admin', '', '', '', 'permissions:SystemGOD::', '1'),
+('admin_blocks', '', '', 5, 'admin_blocks', '', '', '', 'permissions:SystemGOD::form_edit_config:id&&+~block_name&&required+~block_template&&record_select[]mp_templates||id||block_template||0+~block_type&&+~block_order&&validation[]block_order+~urls&&required+~master_select&&+~block_content&&+~page_title&&+~block_options&&+~status&&required::form_record_config:mp_blocks&&id--id--block_name--block_type--urls--status::form_mode:3 ', '1'),
+('admin_groups', '', '', 5, 'admin_groups', '', '', '', 'permissions:SystemGOD::form_edit_config:id&&+~name&&required--unique--validation[]name+~group_permissions&&+~group_level&&required--validation[]group_level::form_record_config:mp_groups&&id--id--name--group_permissions--group_level::form_mode:3', '1'),
+('admin_sqwizard', '', '', 5, 'admin_sqwizard', '', '', '', 'load_class:sqwizard::permissions:SystemGOD', '1');
 ('header', 'raw_html', 0, '*', NULL, '<div id =\"page\">\r\n <div id =\"header\">\r\n  <h1>myparse</h1>\r\n </div>\r\n <div id =\"content\">\r\n\r\n', 'myparse', '', 1),
 ('homepage', 'raw_html', 1, 'homepage', '', '<h1>Welcome to myparse!</h1>\r\n\r\n<p>Please edit these records and replace with your site!</p>\r\n\r\n<p>A basic div structure is present for you here to modify, throw away, or use.</p>', NULL, NULL, 1),
 ('footer', 'raw_html', 9, '*', NULL, ' </div>\r\n <div id=\"footer\">\r\n  <b>2010</b>\r\n </div>\r\n</div>', '', '', 1);
 ";
-	
-	
 $google_a = "
 
 INSERT INTO `mp_templates` (`block_template`, `block_type`, `page_title`, `master_select`, `block_options`, `block_content`) VALUES
 ('google_a', 'html_head', '', '', '', '<script type=\"text/javascript\">\r\n  var _gaq = _gaq || [];\r\n  _gaq.push([''_setAccount'', ''[ga_id]'']);\r\n  _gaq.push([''_trackPageview'']);\r\n\r\n  (function() {\r\n    var ga = document.createElement(''script''); ga.type = ''text/javascript''; ga.async = true;\r\n    ga.src = (''https:'' == document.location.protocol ? ''https://ssl'' : ''http://www'') + ''.google-analytics.com/ga.js'';\r\n    var s = document.getElementsByTagName(''script'')[0]; s.parentNode.insertBefore(ga, s);\r\n  })();\r\n</script>\r\n');
-
-
 
 INSERT INTO `mp_blocks` (`block_name`, `block_template`, `block_type`, `block_order`, `urls`, `master_select`, `block_content`, `page_title`, `block_options`, `status`) VALUES
 	('google_a', 'google_a', '', 9, '*', NULL,NULL, NULL, NULL, 1); INSERT INTO `mp_templates` (`block_template`, `block_type`, `page_title`, `master_select`, `block_content`) VALUES
@@ -232,58 +229,31 @@ INSERT INTO `mp_templates` (`block_template`, `block_type`, `page_title`, `maste
 	$install_root = ($p_count > 1? '/' . $page[$p_count - 2] : '/');
 // ideal make 'enviornments' enabled by default, and allow the definition of the first enviornment on install
 // allow for a 'switcher' of sorts to go between different env in an admin interface
-	$config_file = '<?php
-// required default database/env settings
-$config["db_name"] = "'.$_POST['db_name'].'";
-$config["db_user"] = "'.$_POST['db_user'].'";
-$config["db_pass"] = "'.$_POST['db_pass'].'";
-$config["db_host"] = "'.$_POST['db_host'].'";
-$config["url"] = "http://' . $_SERVER["SERVER_NAME"]. $install_root .'/"; 
-// optional ::
-
-// stats reporting at bottom of page (reports queries/time rendered/memory usage)
-$config["stats"] = false;
-
-// enable if you want to add the titles up inside your blocks in the order that they are retrieved (display order then ID)
-$config["add_titles"] = false;
-
-$config["enable_cache"] = false;
-// built in caching system. 
-//$config["page_cache"] = "cache/"; 
-
-// global cache timeout (i.e. when to check for changes in cache) in minutes
-$config["page_timeout"] = 60;
-
-// removes lines in cached pages
-$config["compress_cache_output"] = false;
-
-// enables verbose debugging in case of errors
-$config["debug"] = false;
-
-// set environments in "env.php", change variable to name, un comment to enable
-//$config["env"] = "production";
 
 
-// permissions (not fully implemented yet, but 100% functional) need to create a user in mp_users, and encode
-// password with md5, this will be my main concern in future releases. More info at myparse.org
-// this must be set to true for an admin interface
-$config["membership"] = true;
-';
 
-$user_vars_file = '<?php
-// Google analytics
- '.($_POST['ga_id']!='UA-11111111-1' && $_POST['ga_id']!='' ? '$user_var["[ga_id]"] = "'.$_POST['ga_id'].'"':'// $user_var["[ga_id]"] = "UA-11111111-1"').';
-// SEO Variables
-'.($_POST['description'] != '' && $_POST['description'] != 'Your site description.' ? '$user_var["description"] = "'.$_POST['description'].'"':'// $user_var"description"] = "your description here"').';
+$config_file =
+'<?php
+	class config{ 
+		public static $_ = array(
+			\'db_name\'=>\''.$_POST['db_name'].'\',
+			\'allow_multiple_sessions\'=>true,
+			\'db_user\'=>\''.$_POST['db_user'].'\',
+			\'db_pass\'=>\''.$_POST['db_pass'].'\',
+			\'db_host\'=>\''.$_POST['db_host'].'\',
+			\'url\'=>\'http://' . $_SERVER["SERVER_NAME"]. $install_root .',
+			\'block_table\'=>\'mp_blocks\',
+			\'template_table\'=>\'mp_templates\',
+			\'table_prefix\'=>\'\',
+			\'stats\'=>false,
+			\'add_titles\'=>false,
+			\'enable_cache\'=>false,
+			\'page_timeout\'=>0,
+			\'compress_cache_output\'=>false,
+			\'debug\'=>false);
+				}';
 
-// base keywords
- '.($_POST['base_keywords'] != '' && $_POST['base_keywords'] != 'your,keywords,here'? '$user_var["keywords"] = "'.$_POST['base_keywords'].'"':'// $user_var["base_keywords"] = "your,keywords,here"').
-';
-// for canonical link
-$user_var["[pass_url]"] = ($url->pass_url == "homepage" ? "" : $url->pass_url);
 
- '
-;	
 
 
 	$htaccess_file = 
@@ -354,14 +324,12 @@ $myparse_install .= $basic_blocks;
 
 		
 if($_POST['ga_id']!='UA-11111111-1' && $_POST['ga_id']!='') $myparse_install .= $google_a;
-	// leaving this in so I easily check the installation query for adding options
-	//echo '<textarea>' . $myparse_install.$permissions_system.$aiki_default_groups.$admin_user . '</textarea> ';
-	
+
 echo (mysqli_multi_query($mysqli_link,$myparse_install.$permissions_system.$aiki_default_groups.$admin_user)?
 	'<h1>Configuration setup successful </h1>
 		<h2>pending actions below:</h2>
 		<h3>Please create these files:</h3><p>By copying and pasting the text below into new documents on your server in the location indicated.</p><h4>"/system/conf/config.php"</h4>
-	<textarea>' . $config_file . '</textarea> ' .'<h4>"/system/conf/user_vars.php"</h4><textarea>' . $user_vars_file . '</textarea> ' . '<h4>"/.htaccess"</h4><i>(place in main/root directory of your myparse installation)</i><br/><textarea>' . $htaccess_file . '</textarea>
+	<textarea>' . $config_file . '</textarea> ' . '<h4>"/.htaccess"</h4><i>(place in main/root directory of your myparse installation)</i><br/><textarea>' . $htaccess_file . '</textarea>
 	':'Problem with installation query.');
 
 }
