@@ -45,6 +45,7 @@ class admin{
 		   store content to another place, and rewrite ALL values not paying close attentionto certain unneeded formatting (splaces betweween the equals sign and so on
 		*/
 		
+		
 		$fd = fopen ($this->e_file, "r");
 		$result=self::get_string_between(fread ($fd,filesize ($this->e_file)),'public static $_ = array(',');');
 		fclose ($fd);
@@ -68,9 +69,9 @@ class admin{
 		foreach($result as $name=>$value){
 		// get the size of the value to switch between field selection sizes
 		$v_size = strlen($value);
-		//die('<b>'.strlen($value) . '</b>');
+		
 			$return .= '<fieldset>
-							<legend>'.$name . '</legend>' 
+							<legend>'.( $this->config_name == 'user_vars'?'<input type="text" name='."uv-$name".'>' . $name . '</input>':$name) . '</legend>' 
 							.($value=='false' || $value=='true'?
 								'<label>On</label><input type="radio" name="'.$name.'" value="true"' .  ($value=='true'? 'CHECKED':'') .'>
 															<label>Off</label><input type="radio" name="'.$name.'" value="false"' .  ($value=='false'? 'CHECKED':'') .'><br>':
