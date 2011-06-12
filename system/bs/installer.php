@@ -232,6 +232,7 @@ INSERT INTO `mp_templates` (`block_template`, `block_type`, `page_title`, `maste
 
 
 
+
 $config_file =
 '<?php
 	class config{ 
