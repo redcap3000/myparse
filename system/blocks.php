@@ -10,7 +10,7 @@ class myparse_layout extends myparse_page
 	// to do unfavor pregmatches in favor of strpos, str_replace, and get_string_between
 
 	// these correspond to the user table in mp_users (hard coded for now because want to avoid another database call everytime to look these up)
-	static public $membership_fields = array('username'=>'','userid'=>'','usergroup'=>'','full_name'=>'','agency'=>'','address'=>'','group_permissions'=>'','group_level'=>'');
+	static public $membership_fields = array('username'=>'','userid'=>'','usergroup'=>'','full_name'=>'','group_permissions'=>'','group_level'=>'');
 
 	function __destruct(){
 		if($this->db){
@@ -67,7 +67,9 @@ class myparse_layout extends myparse_page
 			HAVING 
 				status=1
 			ORDER BY 
-				b.block_order, b.id";						
+				b.block_order, b.id";	
+				
+				//die($sql);					
 		$module_blocks=	self::get_results($sql);
 		// if this call fails get_results will exit the page, and if debug mode is on report an error.
 		if(is_array($module_blocks)){
@@ -94,6 +96,7 @@ class myparse_layout extends myparse_page
 				}		
 			}		
 		unset($module_blocks);
+		
 	}
 	public function reload_form($refresh=0){	
 		unset($_POST);die(header("Refresh: $refresh; url=".$this->url->url));
