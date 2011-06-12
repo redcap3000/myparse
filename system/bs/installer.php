@@ -1,5 +1,4 @@
 <?php
-
 echo '
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
@@ -80,6 +79,7 @@ if (!isset($_POST['db_host']) or !isset($_POST['db_name']) or !isset($_POST['db_
 	if(mysqli_query($mysqli_link,"SELECT id from mp_blocks LIMIT 1") == 1 || mysqli_query($mysqli_link,"SELECT id from mp_templates LIMIT 1"))
 	// modify this later to take the table prefixs/ and blocks_table /template_table to do allow users to easily install installations ontop of each other with the same tables
 	die('<h1>Myparse is already installed</h1><h4>Please remove tables "mp_blocks" and/or "mp_templates" from ' . $_POST['db_name'] . ' and run this installer again.</h4>');
+	
 	if($_POST['pass'] != $_POST['pass_confirm']) die("<h3>Admin account passwords do not match.</h3>");
 	else {
 	echo '<a href="admin">Loginto admin panel</a> with : username:'. $_POST['username'] . ' password : ' . $_POST['pass'];
@@ -221,6 +221,8 @@ INSERT INTO `mp_templates` (`block_template`, `block_type`, `page_title`, `maste
 
 ";
 	// you could just try and use the $_SERVER variable instead of the counting...
+	// also use the path of the page ?
+	
 	$pageURL = "http://".$_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
 	//$page_strlen =  strlen($pageURL);
 	
@@ -242,7 +244,7 @@ $config_file =
 			\'db_user\'=>\''.$_POST['db_user'].'\',
 			\'db_pass\'=>\''.$_POST['db_pass'].'\',
 			\'db_host\'=>\''.$_POST['db_host'].'\',
-			\'url\'=>\'http://' . $_SERVER["SERVER_NAME"]. $install_root .',
+			\'url\'=>\'http://' . $_SERVER["SERVER_NAME"]. $install_root .''',
 			\'block_table\'=>\'mp_blocks\',
 			\'template_table\'=>\'mp_templates\',
 			\'table_prefix\'=>\'\',
@@ -307,7 +309,7 @@ Header unset ETag
 FileETag None
 Options +FollowSymLinks
 RewriteEngine on
-RewriteBase '.$install_root.'
+RewriteBase '.$_SERVER["REQUEST_URI"].'
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{SCRIPT_FILENAME} !-d
