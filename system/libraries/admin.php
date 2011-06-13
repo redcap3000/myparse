@@ -75,7 +75,7 @@ class admin{
 							.($value=='false' || $value=='true'?
 								'<label>On</label><input type="radio" name="'.$name.'" value="true"' .  ($value=='true'? 'CHECKED':'') .'>
 															<label>Off</label><input type="radio" name="'.$name.'" value="false"' .  ($value=='false'? 'CHECKED':'') .'><br>':
-															'<input type="'.($name=='db_pass'?'password':'text' . ($v_size > 100?' size="200" ':'size="50"' )).'" name="'. $name . '" value='."'". $value. "'" .'>').'</fieldset>';
+															'<input type="'.($name=='db_pass'?'password':'text' . '"' .($v_size > 100?' size="200 ':'size="50' )).'" name="'. $name . '" value='."'". $value. "'" .'>').'</fieldset>';
 		}
 		return $return . '<input type="submit" name="Update" value="Update"></form>';
 	}	
