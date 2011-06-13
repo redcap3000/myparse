@@ -19,7 +19,6 @@ if (function_exists('realpath') AND @realpath(dirname(__FILE__)) !== FALSE)	$sys
 	new myparse_page();
 
 class myparse_page{
-	public static $admin_config = array('admin'=>'conf/admin','admin_sqwizard'=>'libraries/sqwizard.php','admin_sqleer'=>'libraries/sqleer.php','admin_users'=>'','admin_blocks'=>'','admin_sqleete'=>'');
 	function __construct(){
 		global $system_folder;
 		$this->system_folder = $system_folder;

@@ -166,11 +166,7 @@ INSERT INTO `mp_groups` (`id`, `name`, `group_permissions`, `group_level`) VALUE
 (3, 'Guests', 'ViewPublished', 100),
 (4, 'Banned users', 'ViewPublished', 101),
 (5, 'Normal User', 'normal', 4),
-(6, 'employees', 'employees', 3);INSERT INTO `mp_blocks` 
-(`block_name`, `block_type`, `block_order`, `urls`, `master_select`, `block_content`, `page_title`, `block_options`, `status`) VALUES
-('header', 'raw_html', 0, '*', NULL, '<div id =\"page\">\r\n <div id =\"header\">\r\n  <h1>myparse</h1>\r\n </div>\r\n <div id =\"content\">\r\n\r\n', 'myparse', '', 1),
-('homepage', 'raw_html', 1, 'homepage', '', '<h1>Welcome to myparse!</h1>\r\n\r\n<p>Please edit these records and replace with your site!</p>\r\n\r\n<p>A basic div structure is present for you here to modify, throw away, or use.</p>', NULL, NULL, 1),
-('footer', 'raw_html', 9, '*', NULL, ' </div>\r\n <div id=\"footer\">\r\n  <b>2010</b>\r\n </div>\r\n</div>', '', '', 1);
+(6, 'employees', 'employees', 3);
 ";
 	
 	
