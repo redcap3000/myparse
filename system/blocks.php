@@ -4,11 +4,8 @@
 class myparse_layout extends myparse_page
 {
 	// for block options, value can be defined as null or specific genf input values ? do this processing for more stuff when calling genf input instead of the complicated way i'm doing it now
-	
 	public $db,$query_count,$user_session,$username,$system_folder,$membership;
-	
 	// to do unfavor pregmatches in favor of strpos, str_replace, and get_string_between
-
 	// these correspond to the user table in mp_users (hard coded for now because want to avoid another database call everytime to look these up)
 	static public $membership_fields = array('username'=>'','userid'=>'','usergroup'=>'','full_name'=>'','group_permissions'=>'','group_level'=>'');
 
@@ -265,7 +262,6 @@ class myparse_layout extends myparse_page
 		// stipulations.. raw_html doesn't do any title processing... this is problematic..	
 		$block->block_content = stripslashes($block->block_content);
 		// whats the diff between block content and block_html ??
-		
 		switch ($block->block_type){
 				default:				self::createBlockContent($block); $this->html_output .= self::processVars($block->block_content); 							break;			
 				case "raw_html":		$this->html_output .= $block->block_content; 																				break;
@@ -476,6 +472,40 @@ class myparse_layout extends myparse_page
 		foreach($replace_fields as $key=>$value)
 				if(strpos($text, '['.$key.']') !== false) $text = str_replace( '['.$key.']', $value, $text);
 		return $text;
+	}
+	
+	public function secure_member_insert($query,$params){
+	// I created this to solve a problem with secure inserts in multiuser enviornments and record inserts
+	// basically the sqlee way would involve putting a users id numbers (from the membership table) 
+	// inside the form. This function allows people to do inserts in a transparent way, as the 
+	// sql statement is modified and special fields are added
+	// pass it the query, the table (to make things  more clear.. at some point bstract from insert statemet
+	// params refers to the membership variables used in the specific table that are also in the membership
+		$table_name = self::get_string_between($query,'insert into `','`');
+		
+		if($table_name==''|| !$table_name) return false;
+		// modify query to add the extra params 
+		$params = explode(',',trim($params));
+		$membership_vars = get_object_vars($this->membership);
+		// no membership vars yet access after block options
+		foreach($params as $loc=>$param){
+			// check to see if the parmeter exists in the array by getting a blank row?
+			// for now it will indescriminately addthese parameters to tables that may not have them
+			// so add a catch elsewhere to attempt to prevent this	
+			if(array_key_exists($param,$membership_vars))
+				$additions []= "'".$this->membership->$param."'";
+			else 
+				unset($params[$loc]);
+			
+		}
+		$fields = self::get_string_between(trim($query),'`(', ') VALUES');
+		$fields = explode(',',$fields);
+		$fields = array_merge($fields,$params);
+		$values = self::get_string_between(trim($query),') VALUES (',');');
+		// remove quotes to expdite re-assembly process??
+		$values = explode(',', $values);
+		$values = array_merge($values,$additions);
+		return ('INSERT INTO `'.$table_name . '`(' . implode(',',$fields)) . ') VALUES (' . implode(',',$values) . ');';
 	}
 	
 	private function smartLoad($class,$bypass=null,$path='/system/libraries/'){
