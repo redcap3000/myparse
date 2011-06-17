@@ -27,7 +27,6 @@ class myparse_page{
 				$this->start_time = (float) array_sum(explode(' ',microtime()));
 				// overhead memory - the memory php + mysqli uses before any form actions occur
 				$this->oh_memory = round(memory_get_usage() / 1024);
-		
 		}
 		$head= '<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 	<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en" dir="ltr">
@@ -64,14 +63,11 @@ class myparse_page{
 		if(get_class($this) == 'myparse_page'){
 		// do nothing if its a child constructor this should be more elegant i assume... the construct method is a bad place to put this code
 			require_once($system_folder.'/system/blocks.php');
-			$layout = new myparse_layout();	
-			
+			$layout = new myparse_layout();
 			// do not like meta_head .. it probably needs another variable that disappears because of the $myparse call that creates an object inside the function call
 			if($layout->keywords || $layout->description) require("$system_folder/system/bs/meta_head.php");
 			// renders html page for caching, 'full output' (displays a single block as a url), or block by block display
-			
 			if(!$layout->html_output) die('<h1>Error 404 Page not found.</h1>.');
-			
 			// if the layout has full_output data, exit the script with that data.
 			if($layout->full_output) die($layout->full_output);
 			// begin building the layout object, starting with the head
@@ -92,7 +88,6 @@ class myparse_page{
 					else 
 						file_put_contents("$put_file", preg_replace("/\r?\n/m", "",$head . '</head><body>' . $layout->html_output));
 				}
-			
 			}elseif($layout->no_cache){}
 			else{
 			// could get the name of the http:// site, or if theres something at the end of that like www.site.com/here title it that instead of 'default'
@@ -103,5 +98,12 @@ class myparse_page{
 		}
 	// user registration callout
 			if($_POST['registration'])require("$system_folder/system/bs/registration.php");
+	}
+	public function stats($x=null){
+		global $num_queries;
+		return ($x!=NULL ?($x=='memory'?round(memory_get_usage() / 1024):
+				($x=='memory_peak'? round(memory_get_peak_usage() / 1024):
+					 ($x=='load_time'?sprintf("%.4f", (((float) array_sum(explode(' ',microtime())))-$this->start_time)):
+					 	($x=='oh_memory'? $this->oh_memory:NULL)))):"\n<div class='stats'>Query Count: $num_queries\n<br/>Overhead Memory use:\t$this->oh_memory k<br/>Memory use:\t". round(memory_get_usage() / 1024) ." k  <br/>Peak use:\t" .round(memory_get_peak_usage() / 1024). " k <br/>Net memory:\t".(round(memory_get_usage() / 1024) - $this->oh_memory) ." k \n</br>Load Time:\t" . sprintf("%.4f", (((float) array_sum(explode(' ',microtime())))-$this->start_time))." seconds</div> \n");
 	}
 }	
